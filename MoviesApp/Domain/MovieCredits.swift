@@ -39,6 +39,12 @@ extension MovieCredits {
     }
 }
 
+extension MovieCredits.Individual: Comparable {
+    static func < (lhs: MovieCredits.Individual, rhs: MovieCredits.Individual) -> Bool {
+        lhs.popularity < rhs.popularity
+    }
+}
+
 extension MovieCredits.Individual {
     enum Role: Decodable {
         case actor

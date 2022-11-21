@@ -10,6 +10,7 @@ import Foundation
 protocol MoviesListDisplayLogic: AnyObject {
     func displayMoviesList(_ viewModel: MoviesListViewController.ViewModel)
     func appendToMoviesList(_ viewModel: MoviesListViewController.ViewModel)
+    func swapMovie(_ movie: MovieTableViewCell.ViewModel, at indexPath: IndexPath)
 }
 
 protocol MoviesListBusinessLogic {

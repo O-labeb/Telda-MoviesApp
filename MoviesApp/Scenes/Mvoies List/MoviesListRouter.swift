@@ -21,7 +21,11 @@ final class MoviesListRouter {
 extension MoviesListRouter: MoviesListRoutingLogic {
     func routeToMovieDetails(at index: IndexPath) {
         let movie = dataStore.groupedMovies[index.section].movies[index.row]
-        
-        print(movie.title)
+        guard let movieID = movie.id else {
+            print("Corrupt Movie with null ID")
+            return
+        }
+        let detailsViewController = MovieDetailsConfigurator.configure(with: movieID)
+        viewController.navigationController?.pushViewController(detailsViewController, animated: true)
     }
 }

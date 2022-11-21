@@ -10,16 +10,47 @@ import Foundation
 class MoviesListPresenter: MoviesListDataStore {
     weak var view: MoviesListDisplayLogic?
     let worker: MoviesListWorkerType
+    let dataStore: DataStore.Type
     var groupedMovies: [MoviesListScene.GroupedMovies] = []
     var moviesSource: MoviesListScene.MoviesSource!
     var isPaginating = false
     
     init(
         view: MoviesListDisplayLogic?,
-        worker: MoviesListWorkerType
+        worker: MoviesListWorkerType,
+        dataStore: DataStore.Type
     ) {
         self.view = view
         self.worker = worker
+        self.dataStore = dataStore
+        
+        self.registerWatchListNotificationObserver()
+    }
+    
+    private func registerWatchListNotificationObserver() {
+        NotificationCentreManager.observeForNotification(host: self, #selector(updateMovieViaNotificationCentre))
+    }
+    
+    @objc func updateMovieViaNotificationCentre(_ notification: NSNotification) {
+        guard let movieID = notification.userInfo?[NotificationCentreManager.Keys.movieID] as? Int else { return }
+        
+        var movieRowIndex: Int?
+        guard
+            let movieSectionIndex = groupedMovies.firstIndex(where: { group in
+                for i in 0..<group.movies.count {
+                    if group.movies[i].id == movieID {
+                        movieRowIndex = i
+                        return true
+                    }
+                }
+                return false
+            }), let movieRowIndex
+        else { return }
+        
+        let indexPath = IndexPath(row: movieRowIndex, section: movieSectionIndex)
+        let movie = convertMovieToCellViewModel(groupedMovies[movieSectionIndex].movies[movieRowIndex])
+        
+        view?.swapMovie(movie, at: indexPath)
     }
 }
 
@@ -139,7 +170,7 @@ private extension MoviesListPresenter {
             imageUrl: buildPosterURL(movie.posterPath),
             title: movie.title,
             overview: movie.overview,
-            isAddedToWatchList: false
+            isAddedToWatchList: dataStore.isMovieAddedToWatchList(movieID: movie.id)
         )
     }
     

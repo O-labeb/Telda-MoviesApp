@@ -27,7 +27,7 @@ class MoviesListViewController: UIViewController {
     
     private func setupTableView() {
         tableView.register(cellType: MovieTableViewCell.self)
-        tableView.register(headerFooterViewType: MoviesListHeader.self)
+        tableView.register(headerFooterViewType: HeaderView.self)
     }
     
     private func setupSearchController() {
@@ -58,7 +58,7 @@ extension MoviesListViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let header = tableView.dequeueReusableHeaderFooterView(withType: MoviesListHeader.self)
+        let header = tableView.dequeueReusableHeaderFooterView(withType: HeaderView.self)
         header.configure(with: viewModel[section].headerViewModel)
         return header
     }
@@ -103,6 +103,11 @@ extension MoviesListViewController: UISearchResultsUpdating {
 }
 
 extension MoviesListViewController: MoviesListDisplayLogic {
+    func swapMovie(_ movie: MovieTableViewCell.ViewModel, at indexPath: IndexPath) {
+        viewModel[indexPath.section].cellsViewModel[indexPath.row] = movie
+        tableView.reloadRows(at: [indexPath], with: .automatic)
+    }
+    
     func displayMoviesList(_ viewModel: ViewModel) {
         self.viewModel = viewModel
         tableView.reloadData()
@@ -123,7 +128,7 @@ extension MoviesListViewController {
     typealias ViewModel = [SectionViewModel]
 
     struct SectionViewModel {
-        let headerViewModel: MoviesListHeader.ViewModel
-        let cellsViewModel: [MovieTableViewCell.ViewModel]
+        let headerViewModel: HeaderView.ViewModel
+        var cellsViewModel: [MovieTableViewCell.ViewModel]
     }
 }
