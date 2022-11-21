@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Alamofire
 
 extension Input {
     struct SearchMovies: Encodable {
@@ -16,8 +17,8 @@ extension Input {
 }
 
 extension Networker {
-    static func searchMovies(input: Input.SearchMovies, completion: @escaping (Result<MoviesList, NetworkError>) -> Void) {
+    static func searchMovies(input: Input.SearchMovies, completion: @escaping (Result<MoviesList, NetworkError>) -> Void) -> Request {
         let url = URLBuilder.buildUrl(with: ["search", "movie"])
-        fetchData(at: url, with: input, completion: completion)
+        return fetchData(at: url, with: input, completion: completion)
     }
 }

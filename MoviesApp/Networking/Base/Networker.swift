@@ -10,7 +10,7 @@ import Alamofire
 enum Networker {}
 
 extension Networker {
-    static func fetchData<D: Decodable>(at url: String, with input: Encodable?, completion: @escaping (Result<D, NetworkError>) -> Void) {
+    @discardableResult static func fetchData<D: Decodable>(at url: String, with input: Encodable?, completion: @escaping (Result<D, NetworkError>) -> Void) -> Request {
         AF.request(
             url,
             method: .get,
@@ -20,13 +20,13 @@ extension Networker {
         .responseData(completionHandler: { response in
             switch response.result {
             case .success(let data):
-                guard
-                    let output = try? JSONDecoder.defaultDecoder.decode(D.self, from: data) else {
-                    completion(.failure(.server(errorMessage: "Failed to decode response")))
-                    return
+                do {
+                    let output = try JSONDecoder.defaultDecoder.decode(D.self, from: data)
+                    completion(.success(output))
+                } catch(let error) {
+                    completion(.failure(.server(errorMessage: "Failed to decode response ")))
+                    print(error)
                 }
-                
-                completion(.success(output))
             case .failure(let error):
                 guard
                     let data = response.data,

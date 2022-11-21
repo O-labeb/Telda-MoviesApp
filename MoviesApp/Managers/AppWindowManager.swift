@@ -27,8 +27,6 @@ private extension AppWindowManager {
     }
     
     static var entryViewController: UIViewController {
-        let vc = UIViewController()
-        vc.view.backgroundColor = .red
-        return vc
+        UINavigationController(rootViewController: MoviesListConfigurator.configure())
     }
 }
