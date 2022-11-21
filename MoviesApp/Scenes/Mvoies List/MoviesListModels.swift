@@ -28,4 +28,18 @@ extension MoviesListScene {
             }
         }
     }
+    
+    enum SceneState {
+        case idle
+        case noResults
+        case loaded(viewModel: ViewModel)
+        case failed(String)
+    }
+    
+    typealias ViewModel = [SectionViewModel]
+
+    struct SectionViewModel {
+        let headerViewModel: HeaderView.ViewModel
+        var cellsViewModel: [MovieTableViewCell.ViewModel]
+    }
 }

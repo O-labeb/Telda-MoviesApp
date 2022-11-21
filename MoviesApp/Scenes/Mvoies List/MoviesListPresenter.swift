@@ -97,17 +97,25 @@ private extension MoviesListPresenter {
         case .success(let moviesList):
             self.presentMovies(moviesList)
         case .failure(let error):
-            print(error)
-            break
+            self.presentErrorState(msg: error.localizedDescription)
         }
     }
     
     func presentMovies(_ moviesList: MoviesList) {
-        self.groupedMovies = groupMoviesByYear(moviesList)
+        guard !moviesList.movies.isEmpty else {
+            view?.displayNoResults(.noResults)
+            return
+        }
         
+        
+        self.groupedMovies = groupMoviesByYear(moviesList)
         let viewModel = groupedMovies.map(convertGroupedMoviesToSection(_:))
         
-        view?.displayMoviesList(viewModel)
+        view?.displayMoviesList(.loaded(viewModel: viewModel))
+    }
+    
+    func presentErrorState(msg: String) {
+        view?.displayError(.failed(msg))
     }
     
     func handlePaginatedMoviesResults(result: Result<MoviesList, NetworkError>) {
@@ -124,11 +132,11 @@ private extension MoviesListPresenter {
     
     func appendAndPresentMovies(_ moviesList: MoviesList) {
         let recentlyGroupedMovies = groupMoviesByYear(moviesList)
-        let viewModel = recentlyGroupedMovies.map(convertGroupedMoviesToSection(_:))
-
         self.groupedMovies.append(contentsOf: recentlyGroupedMovies)
         
-        view?.appendToMoviesList(viewModel)
+        let viewModel = groupedMovies.map(convertGroupedMoviesToSection(_:))
+        
+        view?.appendToMoviesList(.loaded(viewModel: viewModel))
     }
     
     func groupMoviesByYear(_ moviesList: MoviesList) -> [MoviesListScene.GroupedMovies] {
@@ -152,7 +160,7 @@ private extension MoviesListPresenter {
         return groupedMovies
     }
     
-    func convertGroupedMoviesToSection(_ group: MoviesListScene.GroupedMovies) -> MoviesListViewController.SectionViewModel {
+    func convertGroupedMoviesToSection(_ group: MoviesListScene.GroupedMovies) -> MoviesListScene.SectionViewModel {
         .init(
             headerViewModel: .init(
                 title: {

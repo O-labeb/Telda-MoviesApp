@@ -11,6 +11,7 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="MoviesListViewController" customModule="MoviesApp" customModuleProvider="target">
             <connections>
+                <outlet property="activityIndicator" destination="Rnh-Of-gNn" id="BlW-oM-glM"/>
                 <outlet property="tableView" destination="cmk-ux-q6c" id="61C-hX-hrF"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
             </connections>
@@ -29,6 +30,9 @@
                         <outlet property="prefetchDataSource" destination="-1" id="wST-lA-puj"/>
                     </connections>
                 </tableView>
+                <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="Rnh-Of-gNn">
+                    <rect key="frame" x="186.66666666666666" y="416" width="20" height="20"/>
+                </activityIndicatorView>
             </subviews>
             <viewLayoutGuide key="safeArea" id="fnl-2z-Ty3"/>
             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -36,6 +40,8 @@
                 <constraint firstItem="fnl-2z-Ty3" firstAttribute="bottom" secondItem="cmk-ux-q6c" secondAttribute="bottom" id="8qj-Tu-eeG"/>
                 <constraint firstItem="cmk-ux-q6c" firstAttribute="centerX" secondItem="i5M-Pr-FkT" secondAttribute="centerX" id="Fmu-fo-VbU"/>
                 <constraint firstItem="cmk-ux-q6c" firstAttribute="top" secondItem="fnl-2z-Ty3" secondAttribute="top" id="MqU-yh-Y8b"/>
+                <constraint firstItem="Rnh-Of-gNn" firstAttribute="centerX" secondItem="i5M-Pr-FkT" secondAttribute="centerX" id="Qa9-rp-Mol"/>
+                <constraint firstItem="Rnh-Of-gNn" firstAttribute="centerY" secondItem="i5M-Pr-FkT" secondAttribute="centerY" id="Qta-GT-lYC"/>
                 <constraint firstItem="cmk-ux-q6c" firstAttribute="leading" secondItem="fnl-2z-Ty3" secondAttribute="leading" constant="16" id="aiL-w3-Ubw"/>
             </constraints>
             <point key="canvasLocation" x="-560" y="-25"/>

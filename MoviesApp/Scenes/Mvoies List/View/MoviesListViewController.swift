@@ -10,10 +10,11 @@ import UIKit
 class MoviesListViewController: UIViewController {
     var presenter: MoviesListBusinessLogic!
     var router: MoviesListRoutingLogic!
-    private var viewModel: ViewModel = []
+    private var sceneState = MoviesListScene.SceneState.idle
     private var searchDebounceTimer: Timer?
     
     @IBOutlet private weak var tableView: UITableView!
+    @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
     private let searchController = UISearchController(searchResultsController: nil)
     
     override func viewDidLoad() {
@@ -22,11 +23,14 @@ class MoviesListViewController: UIViewController {
         setupTableView()
         setupSearchController()
         
+        activityIndicator.startAnimating()
         presenter.fetchPopularMovies()
     }
     
     private func setupTableView() {
-        tableView.register(cellType: MovieTableViewCell.self)
+        tableView.register(
+            cellType: MovieTableViewCell.self, UITableViewCell.self
+        )
         tableView.register(headerFooterViewType: HeaderView.self)
     }
     
@@ -41,16 +45,36 @@ class MoviesListViewController: UIViewController {
 
 extension MoviesListViewController: UITableViewDataSource, UITableViewDelegate {
     func numberOfSections(in tableView: UITableView) -> Int {
-        viewModel.count
+        guard case .loaded(let viewModel) = sceneState else { return 1 }
+        return viewModel.count
     }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        viewModel[section].cellsViewModel.count
+        switch sceneState {
+        case .loaded(let viewModel):
+            return viewModel[section].cellsViewModel.count
+        case .idle:
+            return 0
+        default:
+            return 1
+        }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withType: MovieTableViewCell.self, for: indexPath)
-        cell.configure(with: viewModel[indexPath.section].cellsViewModel[indexPath.row])
-        return cell
+        switch sceneState {
+        case .loaded(let viewModel):
+            let cell = tableView.dequeueReusableCell(withType: MovieTableViewCell.self, for: indexPath)
+            cell.configure(with: viewModel[indexPath.section].cellsViewModel[indexPath.row])
+            return cell
+        case .failed(let errorMsg):
+            let cell = tableView.dequeueReusableCell(withType: UITableViewCell.self, for: indexPath)
+            cell.textLabel?.text = errorMsg
+            return cell
+        case .noResults, .idle:
+            let cell = tableView.dequeueReusableCell(withType: UITableViewCell.self, for: indexPath)
+            cell.textLabel?.text = "No Result Found"
+            return cell
+        }
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -58,13 +82,15 @@ extension MoviesListViewController: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        guard case .loaded(let viewModel) = sceneState else { return nil }
         let header = tableView.dequeueReusableHeaderFooterView(withType: HeaderView.self)
         header.configure(with: viewModel[section].headerViewModel)
         return header
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        Aspects.headerHeight
+        guard case .loaded = sceneState else { return 0 }
+        return Aspects.headerHeight
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -104,17 +130,38 @@ extension MoviesListViewController: UISearchResultsUpdating {
 
 extension MoviesListViewController: MoviesListDisplayLogic {
     func swapMovie(_ movie: MovieTableViewCell.ViewModel, at indexPath: IndexPath) {
-        viewModel[indexPath.section].cellsViewModel[indexPath.row] = movie
+        guard case .loaded(let viewModel) = sceneState else { return }
+        
+        var tempViewModel = viewModel
+        tempViewModel[indexPath.section].cellsViewModel[indexPath.row] = movie
+        self.sceneState = .loaded(viewModel: tempViewModel)
+        
         tableView.reloadRows(at: [indexPath], with: .automatic)
     }
     
-    func displayMoviesList(_ viewModel: ViewModel) {
-        self.viewModel = viewModel
+    func displayMoviesList(_ viewState: MoviesListScene.SceneState) {
+        activityIndicator.stopAnimating()
+        
+        self.sceneState = viewState
         tableView.reloadData()
     }
     
-    func appendToMoviesList(_ viewModel: ViewModel) {
-        self.viewModel.append(contentsOf: viewModel)
+    func appendToMoviesList(_ viewState: MoviesListScene.SceneState) {
+        self.sceneState = viewState
+        tableView.reloadData()
+    }
+    
+    func displayError(_ viewState: MoviesListScene.SceneState) {
+        activityIndicator.stopAnimating()
+        
+        self.sceneState = viewState
+        tableView.reloadData()
+    }
+    
+    func displayNoResults(_ viewState: MoviesListScene.SceneState) {
+        activityIndicator.stopAnimating()
+        
+        self.sceneState = viewState
         tableView.reloadData()
     }
 }
@@ -123,12 +170,5 @@ extension MoviesListViewController {
     enum Aspects {
         static let cellHeight: CGFloat = 200
         static let headerHeight: CGFloat = 64
-    }
-    
-    typealias ViewModel = [SectionViewModel]
-
-    struct SectionViewModel {
-        let headerViewModel: HeaderView.ViewModel
-        var cellsViewModel: [MovieTableViewCell.ViewModel]
     }
 }

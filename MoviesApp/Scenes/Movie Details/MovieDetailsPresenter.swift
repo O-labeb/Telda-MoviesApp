@@ -94,7 +94,7 @@ private extension MovieDetailsPresenter {
             status: details.status?.rawValue
         )
         
-        let section = MovieDetailsViewController.Section.movieDetails(viewModel: cellViewModel)
+        let section = MovieDetailsScene.Section.movieDetails(viewModel: cellViewModel)
         
         view?.displayMovieDetails(section)
     }
@@ -123,7 +123,7 @@ private extension MovieDetailsPresenter {
             SimilarMovieView.ViewModel(title: movie.title, imageURL: buildImageURl(from: movie.posterPath))
         }
 
-        let section = MovieDetailsViewController.Section.similarMovies(viewModel: similarMoviesViewModel)
+        let section = MovieDetailsScene.Section.similarMovies(viewModel: similarMoviesViewModel)
         view?.displaySimilarMovies(section)
     }
 }
@@ -157,16 +157,19 @@ private extension MovieDetailsPresenter {
     }
     
     func filterAndSortMoviesActors(cast: [MovieCredits.Individual]) {
-        let topFiveActors = cast.filter({ $0.role == .actor }).sorted().prefix(upTo: 5)
+        let topFiveActors = filterOnlyFiveUniquePersons(cast, role: .actor)
         
-        let viewModel = topFiveActors.map({ $0.name })
-        view?.displayMoviesActors(.actors(viewModel: viewModel))
+        view?.displayMoviesActors(.actors(viewModel: topFiveActors))
     }
     
     func filterAndSortMoviesDirectors(crew: [MovieCredits.Individual]) {
-        let topFiveDirectors = crew.filter({ $0.role == .director }).sorted().prefix(upTo: 5)
+        let topFiveDirectors = filterOnlyFiveUniquePersons(crew, role: .director)
         
-        let viewModel = topFiveDirectors.map({ $0.name })
-        view?.displayMoviesActors(.directors(viewModel: viewModel))
+        view?.displayMoviesActors(.directors(viewModel: topFiveDirectors))
+    }
+    
+    func filterOnlyFiveUniquePersons(_ persons: [MovieCredits.Individual], role: MovieCredits.Individual.Role) -> [String] {
+        let topFive = Array(Set(persons)).filter({ $0.role == role }).sorted(by: { $0.popularity > $1.popularity }).prefix(upTo: 5)
+        return topFive.map({ $0.name })
     }
 }

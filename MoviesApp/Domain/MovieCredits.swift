@@ -13,7 +13,7 @@ struct MovieCredits: Decodable {
 }
 
 extension MovieCredits {
-    struct Individual: Decodable {
+    struct Individual: Decodable, Hashable {
         let name: String
         let popularity: Double
         let role: Role

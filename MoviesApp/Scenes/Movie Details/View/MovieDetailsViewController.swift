@@ -11,7 +11,7 @@ typealias MovieCastCell = UITableViewCell
 
 class MovieDetailsViewController: UIViewController {
     var presenter: MovieDetailsBusinessLogic!
-    private var viewModel: ViewModel = []
+    private var viewModel: MovieDetailsScene.ViewModel = []
     
     @IBOutlet private weak var tableView: UITableView!
     
@@ -75,23 +75,23 @@ extension MovieDetailsViewController: UITableViewDataSource, UITableViewDelegate
 }
 
 extension MovieDetailsViewController: MovieDetailsDisplayLogic {
-    func displayMovieDetails(_ viewModel: Section) {
+    func displayMovieDetails(_ viewModel: MovieDetailsScene.Section) {
         appendAndReloadSection(viewModel)
     }
     
-    func displaySimilarMovies(_ viewModel: Section) {
+    func displaySimilarMovies(_ viewModel: MovieDetailsScene.Section) {
         appendAndReloadSection(viewModel)
     }
     
-    func displayMoviesActors(_ viewModel: MovieDetailsViewController.Section) {
+    func displayMoviesActors(_ viewModel: MovieDetailsScene.Section) {
         appendAndReloadSection(viewModel)
     }
     
-    func displayMoviesDirectors(_ viewModel: MovieDetailsViewController.Section) {
+    func displayMoviesDirectors(_ viewModel: MovieDetailsScene.Section) {
         appendAndReloadSection(viewModel)
     }
     
-    private func appendAndReloadSection(_ viewModel: MovieDetailsViewController.Section) {
+    private func appendAndReloadSection(_ viewModel: MovieDetailsScene.Section) {
         self.viewModel.append(viewModel)
         self.tableView.reloadData()
     }
@@ -110,44 +110,4 @@ extension MovieDetailsViewController: MovieDetailsDisplayLogic {
 }
 
 extension MovieDetailsViewController {
-    typealias ViewModel = [Section]
-    
-    enum Section {
-        case movieDetails(viewModel: MovieDetailsCell.ViewModel)
-        case similarMovies(viewModel: SimilarMoviesCell.ViewModel)
-        case actors(viewModel: [String])
-        case directors(viewModel: [String])
-        
-        var numberOfCells: Int {
-            switch self {
-            case .movieDetails, .similarMovies:
-                return 1
-            case .actors(let viewModel):
-                return viewModel.count
-            case .directors(let viewModel):
-                return viewModel.count
-            }
-        }
-        
-        var headerViewModel: HeaderView.ViewModel {
-            .init(title: headerTitle)
-        }
-        
-        private var headerTitle: String {
-            switch self {
-            case .movieDetails:
-                return "Movie Details"
-            case .similarMovies:
-                return "Similar Movies"
-            case .actors:
-                return "Actors"
-            case .directors:
-                return "Directors"
-            }
-        }
-        
-        var headerHeight: CGFloat {
-            50
-        }
-    }
 }

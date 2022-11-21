@@ -8,10 +8,10 @@
 import Foundation
 
 protocol MovieDetailsDisplayLogic: AnyObject {
-    func displayMovieDetails(_ viewModel: MovieDetailsViewController.Section)
-    func displaySimilarMovies(_ viewModel: MovieDetailsViewController.Section)
-    func displayMoviesActors(_ viewModel: MovieDetailsViewController.Section)
-    func displayMoviesDirectors(_ viewModel: MovieDetailsViewController.Section)
+    func displayMovieDetails(_ viewModel: MovieDetailsScene.Section)
+    func displaySimilarMovies(_ viewModel: MovieDetailsScene.Section)
+    func displayMoviesActors(_ viewModel: MovieDetailsScene.Section)
+    func displayMoviesDirectors(_ viewModel: MovieDetailsScene.Section)
     func displayRightItemButton(with title: String)
 }
 

@@ -8,8 +8,10 @@
 import Foundation
 
 protocol MoviesListDisplayLogic: AnyObject {
-    func displayMoviesList(_ viewModel: MoviesListViewController.ViewModel)
-    func appendToMoviesList(_ viewModel: MoviesListViewController.ViewModel)
+    func displayMoviesList(_ viewState: MoviesListScene.SceneState)
+    func appendToMoviesList(_ viewState: MoviesListScene.SceneState)
+    func displayError(_ viewState: MoviesListScene.SceneState)
+    func displayNoResults(_ viewState: MoviesListScene.SceneState)
     func swapMovie(_ movie: MovieTableViewCell.ViewModel, at indexPath: IndexPath)
 }
 
